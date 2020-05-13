@@ -115,10 +115,10 @@ def depthFirstSearch(problem):
             start = node
             break
         else:
-            exploited.append(state)
+            exploited.append(state[0])
             successors = problem.getSuccessors(state[0])
             for i in successors:
-                if i not in exploited:
+                if i[0] not in exploited:
                     new_node = Node(i,node)
                     fringe.push(new_node)
     else: raise Exception('Failure')
@@ -137,13 +137,54 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"            
+    exploited =[] # explored states
+    start = problem.getStartState()
+    if problem.isGoalState(start): return Directions.STOP
+    n = start,Directions.STOP,0
+    node = Node(n,None)
+    
+    fringe = util.Queue()
+    fringe.push(node)
+    
+    while True:
+        if fringe.isEmpty():
+            raise Exception('No solution')
+        while True:
+            node = fringe.pop()
+            xy = node.state[0]
+            if xy not in exploited: break
+        exploited.append(xy)
+        if problem.isGoalState(xy):
+            start = node
+            break
+        # expand node
+        successors = problem.getSuccessors(xy)
+        for i in successors:
+            new_node = Node(i,node)
+            fringe.push(new_node)
+    moves =[]
+
+    
+    while True:
+        moves.append(start.state[1]) 
+        start = start.prev 
+        if start.prev == None:break
+    moves.reverse()
+    return moves
+    
+    
+    util.raiseNotDefined()
+
+def uniformCostSearch(problem):
+    """Search the node of least total cost first."""
+    "*** YOUR CODE HERE ***"
     exploited =[]
-    fringe = util.Queue() # use Queue for FIFO behaviour
+    fringe = util.PriorityQueue() # use Queue for FIFO behaviour
     start = problem.getStartState()
     # initialize the search tree with initial state
     n = (start,Directions.STOP,0)
     node = Node(n,None)
-    fringe.push(node)
+    fringe.push(node,node.state[2])
     
     while not fringe.isEmpty():
         node = fringe.pop()
@@ -152,12 +193,12 @@ def breadthFirstSearch(problem):
             start = node
             break
         else:
-            exploited.append(state)
+            exploited.append(state[0])
             successors = problem.getSuccessors(state[0])
             for i in successors:
-                if i not in exploited:
+               if i[0] not in exploited:
                     new_node = Node(i,node)
-                    fringe.push(new_node)
+                    fringe.push(new_node,i[2])
     else: raise Exception('Failure')
     
     moves =[]  
@@ -170,10 +211,6 @@ def breadthFirstSearch(problem):
     return moves
     util.raiseNotDefined()
 
-def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
     """
@@ -185,6 +222,38 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    exploited =[]
+    fringe = util.PriorityQueue() # use Queue for FIFO behaviour
+    start = problem.getStartState()
+    # initialize the search tree with initial state
+    n = (start,Directions.STOP,0)
+    node = Node(n,None)
+    fringe.push(node,node.state[2])
+    
+    while not fringe.isEmpty():
+        node = fringe.pop()
+        state = node.state
+        if  problem.isGoalState(state[0]):
+            start = node
+            break
+        else:
+            exploited.append(state[0])
+            successors = problem.getSuccessors(state[0])
+            for i in successors:
+               if i[0] not in exploited:
+                    new_node = Node(i,node)
+                    fringe.push(new_node,i[2]+heuristic(i[0],problem))
+    else: raise Exception('Failure')
+    
+    moves =[]  
+    
+    while True:
+        moves.append(start.state[1]) 
+        start = start.prev 
+        if start.prev == None:break
+    moves.reverse()
+    return moves
+    util.raiseNotDefined()
     util.raiseNotDefined()
 
 
