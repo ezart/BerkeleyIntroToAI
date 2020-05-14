@@ -178,30 +178,41 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    class UCSNode(Node):
+        def __init__(self, state=None, prev=None,cost=0):
+                super().__init__(state=state, prev=prev)
+                self.cost = cost
     exploited =[]
-    fringe = util.PriorityQueue() # use Queue for FIFO behaviour
+    fringe = util.PriorityQueue() # use PriorityQueue to pops nodes based on least cost
     start = problem.getStartState()
-    # initialize the search tree with initial state
-    n = (start,Directions.STOP,0)
-    node = Node(n,None)
-    fringe.push(node,node.state[2])
+    if problem.isGoalState(start): return Directions.STOP
     
-    while not fringe.isEmpty():
-        node = fringe.pop()
-        state = node.state
-        if  problem.isGoalState(state[0]):
+    n = start, Directions.STOP,0
+    node = UCSNode(n,None,0)
+    
+    fringe.push(node,0)
+    
+    while True:
+        if fringe.isEmpty():
+            raise Exception('No solution')
+        while True:
+            node = fringe.pop()
+            xy = node.state[0]
+            if xy not in exploited: break
+        exploited.append(xy)
+        if problem.isGoalState(xy):
             start = node
             break
-        else:
-            exploited.append(state[0])
-            successors = problem.getSuccessors(state[0])
-            for i in successors:
-               if i[0] not in exploited:
-                    new_node = Node(i,node)
-                    fringe.push(new_node,i[2])
-    else: raise Exception('Failure')
-    
-    moves =[]  
+        # expand node
+        successors = problem.getSuccessors(xy)
+        for i in successors:
+            if i[0] not in exploited:
+                cost = i[2] + node.cost
+                new_node = UCSNode(i,node,cost)                
+                fringe.push(new_node,cost)
+            
+    moves =[]
+
     
     while True:
         moves.append(start.state[1]) 
@@ -209,6 +220,7 @@ def uniformCostSearch(problem):
         if start.prev == None:break
     moves.reverse()
     return moves
+            
     util.raiseNotDefined()
 
 
