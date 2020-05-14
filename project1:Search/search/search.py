@@ -234,28 +234,38 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    class ANode(Node):
+        def __init__(self, state=None, prev=None,cost=0):
+                super().__init__(state=state, prev=prev)
+                self.cost = cost
+    
     exploited =[]
-    fringe = util.PriorityQueue() # use Queue for FIFO behaviour
+    fringe = util.PriorityQueue() 
     start = problem.getStartState()
     # initialize the search tree with initial state
     n = (start,Directions.STOP,0)
-    node = Node(n,None)
-    fringe.push(node,node.state[2])
+    node = ANode(n,None,0)
+    fringe.push(node,0)
     
-    while not fringe.isEmpty():
-        node = fringe.pop()
-        state = node.state
-        if  problem.isGoalState(state[0]):
+    while True:
+        if fringe.isEmpty():
+            raise Exception("Failure")
+        while True:
+            node  = fringe.pop()
+            xy = node.state[0]
+            if xy not in exploited: break
+        exploited.append(xy)
+        if problem.isGoalState(xy):
             start = node
             break
-        else:
-            exploited.append(state[0])
-            successors = problem.getSuccessors(state[0])
-            for i in successors:
-               if i[0] not in exploited:
-                    new_node = Node(i,node)
-                    fringe.push(new_node,i[2]+heuristic(i[0],problem))
-    else: raise Exception('Failure')
+        successors = problem.getSuccessors(xy)
+        for i in successors:
+            if i[0] not in exploited:
+                cost = i[2] + node.cost
+                total_cost = cost + heuristic(i[0],problem) #use xy of each successor state
+                new_node = ANode(i,node,cost)
+                fringe.push(new_node,total_cost)
+            
     
     moves =[]  
     
