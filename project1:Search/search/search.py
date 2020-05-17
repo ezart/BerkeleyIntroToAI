@@ -136,42 +136,62 @@ def depthFirstSearch(problem):
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"            
+    "*** YOUR CODE HERE ***"      
+    goals =[]      
     exploited =[] # explored states
     start = problem.getStartState()
+    print('the start', start)
     if problem.isGoalState(start): return Directions.STOP
     n = start,Directions.STOP,0
     node = Node(n,None)
     
     fringe = util.Queue()
     fringe.push(node)
-    
+    moves =[]
     while True:
-        if fringe.isEmpty():
-            raise Exception('No solution')
-        while True:
+        # if fringe.isEmpty():
+        #     break
+        while not fringe.isEmpty():
             node = fringe.pop()
             xy = node.state[0]
-            if xy not in exploited: break
+            if xy not in exploited : break
+        else: break
         exploited.append(xy)
         if problem.isGoalState(xy):
-            start = node
-            break
+            goals.append(node)
+            print("add to the goal ...")
+            # if problem starting state is still the same, break
+            if problem.getStartState() == start:
+                break
+            else:
+                print("starting state", problem.getStartState())
+                moves = moves + breadthFirstSearch(problem)[::-1]
+            
         # expand node
         successors = problem.getSuccessors(xy)
         for i in successors:
-            new_node = Node(i,node)
-            fringe.push(new_node)
-    moves =[]
+            if i[0] not in exploited:
+                new_node = Node(i,node)
+                fringe.push(new_node)
+    
 
     
-    while True:
-        moves.append(start.state[1]) 
-        start = start.prev 
-        if start.prev == None:break
-    moves.reverse()
-    return moves
     
+
+    for i, goal in reversed(list(enumerate(goals))):
+        start = goal
+        print(start.state[0],'\n')
+        while True:
+            print(start.state[0], start.state[1],)
+            if start.prev == goals[i-1]: break
+            moves.append(start.state[1])
+            start = start.prev
+            if i == 0 and start.prev == None:break
+            
+            
+    moves.reverse()
+    print(moves)
+    return moves
     
     util.raiseNotDefined()
 

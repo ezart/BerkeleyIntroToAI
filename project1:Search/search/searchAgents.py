@@ -288,6 +288,10 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
+        self.visitedCorners = set()
+        # print(dir(startingGameState))
+        # print(startingGameState.getFood().asList())
+        self.foodList = startingGameState.getFood().asList()
 
     def getStartState(self):
         """
@@ -295,6 +299,7 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
+        return self.startingPosition
         util.raiseNotDefined()
 
     def isGoalState(self, state):
@@ -302,6 +307,19 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
+        isGoal = False
+        
+        if state in self.corners and not state in self.visitedCorners:
+            isGoal = True
+            self.visitedCorners.add(state)
+            print("goal ",state)
+            if len(self.corners) > len(self.visitedCorners):
+                self.startingPosition = state
+        
+        return isGoal
+
+        
+    
         util.raiseNotDefined()
 
     def getSuccessors(self, state):
@@ -325,6 +343,14 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            x,y = state
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            if not hitsWall:
+                cost = 1
+                nextState = (nextx, nexty)
+                successors.append((nextState, action, cost))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -358,8 +384,13 @@ def cornersHeuristic(state, problem):
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    visitedCorners = problem.vistedCorners
 
     "*** YOUR CODE HERE ***"
+    # get the shortest Manhattan Distance from any of the corners
+    xy = state[0]
+    distances = [abs(xy[0] -i[0]) + abs(xy[1] - i[1]) for i in corners if not i in visitedCorners]
+    
     return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
