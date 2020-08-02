@@ -98,9 +98,10 @@ def depthFirstSearch(problem):
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
-    "*** YOUR CODE HERE ***"       
+    "*** YOUR CODE HERE ***"  
     
-    exploited =[] # explored states
+    
+    explored =[] # explored states
     fringe = util.Stack() #use Stack for LIFO behaviour
     start = problem.getStartState()
     # initialize the search tree with initial state
@@ -115,10 +116,10 @@ def depthFirstSearch(problem):
             start = node
             break
         else:
-            exploited.append(state[0])
+            explored.append(state[0])
             successors = problem.getSuccessors(state[0])
             for i in successors:
-                if i[0] not in exploited:
+                if i[0] not in explored:
                     new_node = Node(i,node)
                     fringe.push(new_node)
     else: raise Exception('Failure')
@@ -138,9 +139,9 @@ def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"      
     goals =[]      
-    exploited =[] # explored states
+    explored =[] # explored states
     start = problem.getStartState()
-    print('the start', start)
+
     if problem.isGoalState(start): return Directions.STOP
     n = start,Directions.STOP,0
     node = Node(n,None)
@@ -149,14 +150,12 @@ def breadthFirstSearch(problem):
     fringe.push(node)
     moves =[]
     while True:
-        # if fringe.isEmpty():
-        #     break
         while not fringe.isEmpty():
             node = fringe.pop()
             xy = node.state[0]
-            if xy not in exploited : break
+            if xy not in explored : break
         else: break
-        exploited.append(xy)
+        explored.append(xy)
         if problem.isGoalState(xy):
             goals.append(node)
             print("add to the goal ...")
@@ -170,19 +169,15 @@ def breadthFirstSearch(problem):
         # expand node
         successors = problem.getSuccessors(xy)
         for i in successors:
-            if i[0] not in exploited:
+            if i[0] not in explored:
                 new_node = Node(i,node)
                 fringe.push(new_node)
-    
 
-    
     
 
     for i, goal in reversed(list(enumerate(goals))):
         start = goal
-        print(start.state[0],'\n')
         while True:
-            print(start.state[0], start.state[1],)
             if start.prev == goals[i-1]: break
             moves.append(start.state[1])
             start = start.prev
@@ -190,7 +185,6 @@ def breadthFirstSearch(problem):
             
             
     moves.reverse()
-    print(moves)
     return moves
     
     util.raiseNotDefined()
@@ -202,7 +196,7 @@ def uniformCostSearch(problem):
         def __init__(self, state=None, prev=None,cost=0):
                 super().__init__(state=state, prev=prev)
                 self.cost = cost
-    exploited =[]
+    explored =[]
     fringe = util.PriorityQueue() # use PriorityQueue to pops nodes based on least cost
     start = problem.getStartState()
     if problem.isGoalState(start): return Directions.STOP
@@ -218,15 +212,15 @@ def uniformCostSearch(problem):
         while True:
             node = fringe.pop()
             xy = node.state[0]
-            if xy not in exploited: break
-        exploited.append(xy)
+            if xy not in explored: break
+        explored.append(xy)
         if problem.isGoalState(xy):
             start = node
             break
         # expand node
         successors = problem.getSuccessors(xy)
         for i in successors:
-            if i[0] not in exploited:
+            if i[0] not in explored:
                 cost = i[2] + node.cost
                 new_node = UCSNode(i,node,cost)                
                 fringe.push(new_node,cost)
@@ -259,7 +253,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
                 super().__init__(state=state, prev=prev)
                 self.cost = cost
     
-    exploited =[]
+    explored =[]
     fringe = util.PriorityQueue() 
     start = problem.getStartState()
     # initialize the search tree with initial state
@@ -273,14 +267,14 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         while True:
             node  = fringe.pop()
             xy = node.state[0]
-            if xy not in exploited: break
-        exploited.append(xy)
+            if xy not in explored: break
+        explored.append(xy)
         if problem.isGoalState(xy):
             start = node
             break
         successors = problem.getSuccessors(xy)
         for i in successors:
-            if i[0] not in exploited:
+            if i[0] not in explored:
                 cost = i[2] + node.cost
                 total_cost = cost + heuristic(i[0],problem) #use xy of each successor state
                 new_node = ANode(i,node,cost)

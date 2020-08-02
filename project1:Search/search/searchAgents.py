@@ -312,7 +312,6 @@ class CornersProblem(search.SearchProblem):
         if state in self.corners and not state in self.visitedCorners:
             isGoal = True
             self.visitedCorners.add(state)
-            print("goal ",state)
             if len(self.corners) > len(self.visitedCorners):
                 self.startingPosition = state
         
